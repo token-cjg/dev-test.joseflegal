@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^16"
+    "node": "^20"
   },
   "scripts": {
-    "client": "vue-cli-service serve",
+    "client": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "build": "vue-cli-service build",
-    "server": "json-server --watch db/dev.json",
+    "server": "NODE_OPTIONS=--openssl-legacy-provider json-server --watch db/dev.json",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "test:unit": "vue-cli-service test:unit",
-    "test:e2e": "vue-cli-service test:e2e",
+    "test:e2e": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
