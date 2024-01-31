@@ -17,7 +17,8 @@
   "resolutions": {
     "@achrinza/node-ipc": "9.2.8",
     "glob-parent": "5.1.2",
-    "async": "2.6.4"
+    "async": "2.6.4",
+    "minimist": "0.2.4"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
