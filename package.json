@@ -19,7 +19,8 @@
     "glob-parent": "5.1.2",
     "async": "2.6.4",
     "minimist": "0.2.4",
-    "lodash": "4.17.21"
+    "lodash": "4.17.21",
+    "moment": "2.29.4"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
