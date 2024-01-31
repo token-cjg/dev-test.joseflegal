@@ -20,7 +20,8 @@
     "async": "2.6.4",
     "minimist": "0.2.4",
     "lodash": "4.17.21",
-    "moment": "2.29.4"
+    "moment": "2.29.4",
+    "nth-check": "2.0.1"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
