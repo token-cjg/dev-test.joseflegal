@@ -15,7 +15,8 @@
     "lint": "vue-cli-service lint"
   },
   "resolutions": {
-    "@achrinza/node-ipc": "9.2.8"
+    "@achrinza/node-ipc": "9.2.8",
+    "glob-parent": "5.1.2"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
