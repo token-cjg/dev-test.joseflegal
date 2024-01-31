@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <h1>Vue.js layout</h1>
-    <!-- Render the files data with a resuable component (a list or card up to you!) -->
-    <pre>// TODO: replace this block 👇 with a resusable component that renders elements from the files array 
-      <code>files:
-      {{files}}</code>
-    </pre>
+    <div v-for="file in filteredFiles" :key="file.id">
+      <FileItem :file="file">
+        <!-- You can use slots here if needed -->
+      </FileItem>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -25,9 +25,13 @@ code {
 <script>
 // @ is an alias to /src
 import api from "@/api";
+import FileItem from "@/components/FileItem.vue";
 
 export default {
   name: "Layout",
+  components: {
+    FileItem,
+  },
   data() {
     return {
       files: [],
@@ -37,6 +41,13 @@ export default {
     api.files.get().then((res) => {
       this.files = res;
     });
+  },
+  computed: {
+    filteredFiles() {
+      return this.files
+        .filter(file => file.tags.includes('kitten'))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
   },
 };
 </script>
