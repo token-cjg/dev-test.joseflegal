@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from "@vue/test-utils";
 import Layout from "@/views/Layout.vue";
 import FileItem from "@/components/FileItem.vue";
-import api from "@/api"; // Adjust this import based on your actual API file's location
+import api from "@/api";
 
 // Create a local Vue instance to install plugins if needed (e.g., Vuex, Vue Router)
 const localVue = createLocalVue();
@@ -10,10 +10,9 @@ const localVue = createLocalVue();
 jest.mock("@/components/FileItem.vue", () => ({
   name: "FileItem",
   props: ["file"],
-  render: (h) => h("div"), // simple render function
+  render: (h) => h("div"),
 }));
 
-// Mocking the API call
 jest.mock("@/api", () => ({
   files: {
     get: jest.fn(),

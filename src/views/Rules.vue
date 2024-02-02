@@ -106,23 +106,23 @@ export default {
   },
   methods: {
     checkGroup(rule_group) {
-      // cheking that rules and groups apply
-      // returns true if all/any rules apply, depending on logic property
+      // Combine evaluations: map rules to their checks and recursively evaluate subgroups
+      const ruleChecks = (rule_group.rule_ids || []).map((rule_id) =>
+        this.checkRule(this.rules[rule_id])
+      );
+      const subgroupChecks = (rule_group.groups || []).map((subgroup) =>
+        this.checkGroup(subgroup)
+      );
+      const results = [...ruleChecks, ...subgroupChecks];
 
-      console.log("Group:");
-      console.log(rule_group.logic);
+      // Mapping logic types to corresponding evaluation methods
+      const logicMapping = {
+        and: (results) => results.every((result) => result),
+        or: (results) => results.some((result) => result),
+      };
 
-      //////////////////////////////////////////////////////
-      // TODO: check that all rules and groups apply
-      // ~10 - 15 lines of code
-
-      rule_group.rule_ids.forEach((rule_id) => {
-        console.log(this.checkRule(this.rules[rule_id]));
-      });
-
-      return false;
-
-      //////////////////////////////////////////////////////
+      // Execute the corresponding function based on rule_group.logic, defaulting to false
+      return (logicMapping[rule_group.logic] || (() => false))(results);
     },
 
     checkRule(rule) {
