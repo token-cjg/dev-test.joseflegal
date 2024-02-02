@@ -1,71 +1,76 @@
-import { shallowMount } from "@vue/test-utils";
+import { shallowMount, createLocalVue } from "@vue/test-utils";
+import Vuex from "vuex";
 import Rules from "@/views/Rules.vue";
 
-// Mock the API
-jest.mock("@/api", () => ({
-  answers: {
-    get: jest.fn(() =>
-      Promise.resolve({
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
+describe("Rules.vue", () => {
+  let store;
+  let getters;
+  let actions;
+
+  beforeEach(() => {
+    getters = {
+      getAnswers: () => ({
         A: "x",
         B: "y",
         C: "z",
-      })
-    ),
-  },
-  rules: {
-    get: jest.fn(() =>
-      Promise.resolve([
-        {
-          id: "1",
-          question_id: "A",
-          operation: "is",
-          expected_answer: "x",
+      }),
+      getRules: () => ({
+        1: { question_id: "A", operation: "is", expected_answer: "x" },
+        2: { question_id: "B", operation: "is", expected_answer: "y" },
+        3: { question_id: "C", operation: "is", expected_answer: "h" },
+      }),
+      getRuleGroups: () => ({
+        1: {
+          logic: "any",
+          rule_ids: ["1", "2", "3"],
+          rule_group_ids: ["2"],
         },
-        {
-          id: "2",
-          question_id: "B",
-          operation: "is",
-          expected_answer: "y",
+        2: {
+          logic: "all",
+          rule_ids: ["1", "2", "3"],
+          rule_group_ids: [],
         },
-        {
-          id: "3",
-          question_id: "C",
-          operation: "is",
-          expected_answer: "z",
+      }), // Provide an appropriate mock return value
+    };
+    actions = {
+      FETCH_ANSWERS: jest.fn(),
+      FETCH_RULES: jest.fn(),
+      FETCH_RULE_GROUPS: jest.fn(),
+    };
+    store = new Vuex.Store({
+      modules: {
+        rules: {
+          namespaced: true,
+          getters,
+          actions,
         },
-      ])
-    ),
-  },
-  rule_groups: {
-    get: jest.fn(() => Promise.resolve()),
-  },
-}));
-
-describe("Rules.vue", () => {
-  let wrapper;
-
-  beforeEach(() => {
-    wrapper = shallowMount(Rules);
+      },
+    });
   });
 
-  it("correctly checks a rule", async () => {
-    await wrapper.vm.$nextTick(); // Wait for API
-    const rule = {
-      question_id: "A",
-      operation: "is",
-      expected_answer: "x",
-    };
+  it("dispatches actions to fetch data on created hook", () => {
+    shallowMount(Rules, { store, localVue });
+    expect(actions["FETCH_ANSWERS"]).toHaveBeenCalled();
+    expect(actions["FETCH_RULES"]).toHaveBeenCalled();
+    expect(actions["FETCH_RULE_GROUPS"]).toHaveBeenCalled();
+  });
+
+  it("correctly checks a rule based on vuex state", () => {
+    const wrapper = shallowMount(Rules, { store, localVue });
+    const rule = { question_id: "A", operation: "is", expected_answer: "x" };
     expect(wrapper.vm.checkRule(rule)).toBe(true);
   });
 
-  it("evaluates a simple rule group correctly", async () => {
-    await wrapper.vm.$nextTick(); // Wait for API
+  it("evaluates a simple rule group correctly", () => {
+    const wrapper = shallowMount(Rules, { store, localVue });
     const ruleGroup = {
-      logic: "and",
-      rule_ids: [],
-      groups: [],
+      logic: "any",
+      rule_ids: ["1", "2", "3"],
+      rule_group_ids: [],
     };
-    // Assume these rule IDs correspond to rules that should evaluate to true based on the mock answers
     expect(wrapper.vm.checkGroup(ruleGroup)).toBe(true);
   });
 });

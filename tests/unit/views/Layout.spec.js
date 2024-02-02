@@ -1,66 +1,66 @@
 import { shallowMount, createLocalVue } from "@vue/test-utils";
+import Vuex from "vuex";
 import Layout from "@/views/Layout.vue";
 import FileItem from "@/components/FileItem.vue";
-import api from "@/api";
 
-// Create a local Vue instance to install plugins if needed (e.g., Vuex, Vue Router)
+// Create a local Vue instance and install Vuex
 const localVue = createLocalVue();
-
-// Mocking the FileItem component
-jest.mock("@/components/FileItem.vue", () => ({
-  name: "FileItem",
-  props: ["file"],
-  render: (h) => h("div"),
-}));
-
-jest.mock("@/api", () => ({
-  files: {
-    get: jest.fn(),
-  },
-}));
+localVue.use(Vuex);
 
 describe("Layout.vue", () => {
-  let files;
+  let store;
+  let actions;
+  let getters;
 
   beforeEach(() => {
-    files = [
-      {
-        id: "1",
-        description: "a fluffy kitten",
-        mimetype: "image/jpeg",
-        filename: "kitten.jpg",
-        tags: "kitten",
-        date: "2021-07-01T14:00:00.000+00:00",
-        src: "http://placekitten.com/200/300",
-      },
-      {
-        id: "2",
-        description: "a tiny puppy",
-        mimetype: "image/jpeg",
-        filename: "puppy.jpg",
-        tags: "puppy",
-        date: "2021-08-01T14:00:00.000+00:00",
-        src: "http://placepuppy.com/200/300",
-      },
-    ];
-
-    api.files.get.mockResolvedValue(files);
+    actions = {
+      "files/FETCH_FILES": jest.fn(),
+    };
+    getters = {
+      "files/getFiles": () => [
+        {
+          id: "1",
+          description: "a fluffy kitten",
+          mimetype: "image/jpeg",
+          filename: "kitten.jpg",
+          tags: "kitten",
+          date: "2021-07-01T14:00:00.000+00:00",
+          src: "http://placekitten.com/200/300",
+        },
+        {
+          id: "2",
+          description: "a tiny puppy",
+          mimetype: "image/jpeg",
+          filename: "puppy.jpg",
+          tags: "puppy",
+          date: "2021-08-01T14:00:00.000+00:00",
+          src: "http://placepuppy.com/200/300",
+        },
+      ],
+    };
+    store = new Vuex.Store({
+      actions,
+      getters,
+    });
   });
 
   it("fetches files on created hook and filters for kittens", async () => {
-    const wrapper = shallowMount(Layout, { localVue });
-    // Since fetch is async, we need to wait for the next tick to ensure it has completed.
+    const wrapper = shallowMount(Layout, { store, localVue });
     await wrapper.vm.$nextTick();
 
     // The component should only render FileItem for files tagged with "kitten"
     expect(wrapper.findAllComponents(FileItem).length).toBe(1);
+    expect(actions["files/FETCH_FILES"]).toHaveBeenCalled();
   });
 
   it('renders a FileItem for each file with tag "kitten"', async () => {
-    const wrapper = shallowMount(Layout, { localVue });
-    await wrapper.vm.$nextTick(); // Wait for promises to resolve
+    const wrapper = shallowMount(Layout, { store, localVue });
+    await wrapper.vm.$nextTick();
 
     const fileItems = wrapper.findAllComponents(FileItem);
-    expect(fileItems.wrappers[0].props().file).toEqual(files[0]); // Check if the first file item receives the correct prop
+    expect(fileItems.wrappers[0].props().file).toMatchObject({
+      description: "a fluffy kitten",
+      tags: "kitten",
+    });
   });
 });

@@ -24,7 +24,6 @@ code {
 </style>
 <script>
 // @ is an alias to /src
-import api from "@/api";
 import FileItem from "@/components/FileItem.vue";
 
 export default {
@@ -38,13 +37,11 @@ export default {
     };
   },
   created() {
-    api.files.get().then((res) => {
-      this.files = res;
-    });
+    this.$store.dispatch("files/FETCH_FILES");
   },
   computed: {
     filteredFiles() {
-      return this.files
+      return this.$store.getters["files/getFiles"]
         .filter((file) => file.tags.includes("kitten"))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
     },

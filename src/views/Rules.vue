@@ -56,8 +56,8 @@
       <strong>multiple groups example</strong> above. Please, note how property
       <em>logic</em> determines logical operation between rules and groups.
     </p>
-    <pre><code>rule_groups:{{rule_groups}}
-rules:{{rules}}</code></pre>
+    <pre><code>rule_groups:{{getRuleGroups}}
+rules:{{getRules}}</code></pre>
     <h2>Task</h2>
     <p>
       Please, finish the <em>checkGroup</em> function in the
@@ -68,11 +68,11 @@ rules:{{rules}}</code></pre>
     <h2>Result</h2>
     <p>With given user answers:</p>
     <pre>
-<code>answers:{{answers}}</code>
+<code>answers:{{getAnswers}}</code>
     </pre>
     <p><strong>multiple groups example</strong> is:</p>
     <pre>
-<code v-if="rule_groups && rules && answers">{{checkGroup(this.rule_groups[1])}}</code>
+<code v-if="isRuleGroupsReady">{{checkGroup(this.getRuleGroups[1])}}</code>
       </pre>
   </div>
 </template>
@@ -93,7 +93,7 @@ img {
 </style>
 <script>
 // @ is an alias to /src
-import api from "@/api";
+import { mapGetters } from "vuex";
 
 export default {
   name: "Rules",
@@ -104,21 +104,46 @@ export default {
       rules: false,
     };
   },
+  computed: {
+    // Use mapGetters to access state data
+    ...mapGetters("rules", ["getAnswers", "getRules", "getRuleGroups"]),
+    isRuleGroupsReady() {
+      return (
+        this.getRuleGroups &&
+        this.getRuleGroups[1] &&
+        this.getRules &&
+        this.getAnswers
+      );
+    },
+  },
+  created() {
+    // Dispatch actions to fetch data
+    this.$store.dispatch("rules/FETCH_ANSWERS");
+    this.$store.dispatch("rules/FETCH_RULES");
+    this.$store.dispatch("rules/FETCH_RULE_GROUPS");
+  },
   methods: {
     checkGroup(rule_group) {
       // Combine evaluations: map rules to their checks and recursively evaluate subgroups
-      const ruleChecks = (rule_group.rule_ids || []).map((rule_id) =>
-        this.checkRule(this.rules[rule_id])
-      );
-      const subgroupChecks = (rule_group.groups || []).map((subgroup) =>
-        this.checkGroup(subgroup)
+      const ruleChecks = (rule_group.rule_ids || []).map((rule_id) => {
+        // Access the entire rules object from Vuex state using the getter
+        const rulesObject = this.getRules;
+        // Use the rule_id to access the specific rule from the rules object
+        const rule = rulesObject[rule_id];
+        // Now, you can proceed to use the rule object as needed
+        return this.checkRule(rule);
+      });
+      const subgroupChecks = (rule_group.rule_group_ids || []).map(
+        (subgroup) => {
+          this.checkGroup(subgroup);
+        }
       );
       const results = [...ruleChecks, ...subgroupChecks];
 
       // Mapping logic types to corresponding evaluation methods
       const logicMapping = {
-        and: (results) => results.every((result) => result),
-        or: (results) => results.some((result) => result),
+        all: (results) => results.every((result) => result),
+        any: (results) => results.some((result) => result),
       };
 
       // Execute the corresponding function based on rule_group.logic, defaulting to false
@@ -126,20 +151,17 @@ export default {
     },
 
     checkRule(rule) {
-      // cheking that a rule applies
+      // checking that a rule applies
       // returns if combination of expected answer, operation and user answer is true
-
-      console.log("Rule:");
-      console.log(this.answers[rule.question_id]);
-      console.log(rule.operation);
-      console.log(rule.expected_answer);
       try {
         if (rule.operation === "is") {
-          return rule.expected_answer === this.answers[rule.question_id];
+          return rule.expected_answer === this.getAnswers[rule.question_id];
         } else if (rule.operation === "is not") {
-          return rule.expected_answer !== this.answers[rule.question_id];
+          return rule.expected_answer !== this.getAnswers[rule.question_id];
         } else if (rule.operation === "contains") {
-          return this.answers[rule.question_id].includes(rule.expected_answer);
+          return this.getAnswers[rule.question_id].includes(
+            rule.expected_answer
+          );
         }
       } catch (e) {
         console.error(e.message);
@@ -147,19 +169,6 @@ export default {
       }
       return false;
     },
-  },
-  created() {
-    // loading data from the API
-
-    api.answers.get().then((res) => {
-      this.answers = res;
-    });
-    api.rules.get().then((res) => {
-      this.rules = res;
-    });
-    api.rule_groups.get().then((res) => {
-      this.rule_groups = res;
-    });
   },
 };
 </script>
