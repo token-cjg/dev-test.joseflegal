@@ -1,6 +1,11 @@
 <template>
   <div class="file-item">
-    <img :src="file.src" :alt="file.description" :title="file.filename" class="file-image"/>
+    <img
+      :src="file.src"
+      :alt="file.description"
+      :title="file.filename"
+      class="file-image"
+    />
     <p class="file-description">{{ file.description }}</p>
   </div>
 </template>

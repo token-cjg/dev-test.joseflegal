@@ -45,7 +45,7 @@ export default {
   computed: {
     filteredFiles() {
       return this.files
-        .filter(file => file.tags.includes('kitten'))
+        .filter((file) => file.tags.includes("kitten"))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
     },
   },
