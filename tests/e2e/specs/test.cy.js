@@ -7,7 +7,7 @@ const submitElement = `button[type="submit"]`;
 const submitValue = "#app p:last-child";
 
 describe("Load QA page", () => {
-  before(() => {
+  beforeEach(() => {
     cy.visit("http://localhost:9001/#/qa");
   });
 
