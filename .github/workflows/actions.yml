@@ -16,7 +16,7 @@ jobs:
           - task: unit:test
             command: test:unit
           - task: unit:e2e
-            command: test:e2e
+            command: test:e2e:headless
           - task: lint
             command: lint
     steps:

@@ -12,6 +12,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "concurrently \"npm run dev\" \"npx cypress open --e2e --browser chrome\"",
+    "test:e2e:headless": "npm run dev & PID=$!; npx cypress run --e2e --browser chrome --headless; CY_STATUS=$?; kill $PID; exit $CY_STATUS",
     "lint": "vue-cli-service lint"
   },
   "resolutions": {
