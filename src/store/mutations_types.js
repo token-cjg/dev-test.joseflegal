@@ -5,5 +5,9 @@ const types = {
   REMOVE: "REMOVE",
   CREATE: "CREATE",
   RESET: "RESET",
+  SET_FILES: "SET_FILES",
+  SET_ANSWERS: "SET_ANSWERS",
+  SET_RULES: "SET_RULES",
+  SET_RULE_GROUPS: "SET_RULE_GROUPS",
 };
 module.exports = types;

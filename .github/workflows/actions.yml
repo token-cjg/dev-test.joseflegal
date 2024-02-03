@@ -1,0 +1,31 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run tests and lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - task: unit:test
+            command: test:unit
+          - task: unit:e2e
+            command: test:e2e:headless
+          - task: lint
+            command: lint
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: yarn install
+    - name: Run ${{ matrix.task }}
+      run: yarn ${{ matrix.command }}
